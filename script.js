@@ -7,9 +7,11 @@
   }
   const rawIdentity = (params.get('e') || params.get('n') || '').trim().slice(0, 80);
   const identity = rawIdentity || 'Gasista';
-  const cleanPhone = (params.get('t') || '1158055802').replace(/[\s\-()]/g, '');
+  const suppliedPhone = params.get('t');
+  const cleanPhone = (suppliedPhone || '1167967633').replace(/[\s\-()]/g, '');
   const whatsappPhone = `549${cleanPhone}`;
-  const displayPhone = cleanPhone.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2-$3');
+  const telephonePhone = suppliedPhone ? cleanPhone : whatsappPhone;
+  const displayPhone = suppliedPhone ? cleanPhone.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2-$3') : '+54 9 11 6796-7633';
   const messages = {
     consulta: `Hola, soy ____. Me comunico desde la página de ${identity}. Quiero hacer una consulta de gasista.`,
     instalacion: `Hola, soy ____. Me comunico desde la página de ${identity}. Quiero consultar una instalación o conexión de gas. El equipo o espacio es ____.`,
@@ -23,7 +25,7 @@
     const intent = link.dataset.intent || 'consulta';
     link.href = `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(messages[intent] || messages.consulta)}`;
   });
-  document.querySelectorAll('a[href^="tel:"]').forEach((link) => { link.href = `tel:${cleanPhone}`; });
+  document.querySelectorAll('a[href^="tel:"]').forEach((link) => { link.href = `tel:${telephonePhone}`; });
   document.querySelectorAll('[data-phone-display]').forEach((el) => { el.textContent = displayPhone; });
 
   const toggle = document.getElementById('menuToggle');
