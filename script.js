@@ -1,16 +1,17 @@
 (() => {
   'use strict';
-  const local = new URLSearchParams(window.location.search);
+  const local = new URLSearchParams(window.__DEMO_PARAMS__ ?? window.location.search);
   let params = local;
   if (!local.toString()) {
     try { if (window.parent && window.parent !== window) params = new URLSearchParams(window.parent.location.search); } catch (error) { /* Parent may be cross-origin. */ }
   }
-  const rawIdentity = (params.get('e') || params.get('n') || '').trim().slice(0, 80);
+  const rawIdentity = (params.get('e')?.trim().slice(0, 80) || params.get('n')?.trim().slice(0, 80) || '').trim().slice(0, 80);
   const identity = rawIdentity || 'Gasista';
   const suppliedPhone = params.get('t');
-  const cleanPhone = (suppliedPhone || '1167967633').replace(/[\s\-()]/g, '');
-  const whatsappPhone = `549${cleanPhone}`;
-  const telephonePhone = suppliedPhone ? cleanPhone : whatsappPhone;
+  const contactPhone = window.SiteSecurity.normalizePhone(suppliedPhone ?? '1167967633');
+  const cleanPhone = contactPhone?.national || '';
+  const whatsappPhone = contactPhone?.whatsapp || '';
+  const telephonePhone = contactPhone?.telephone || '';
   const displayPhone = suppliedPhone ? cleanPhone.replace(/(\d{2})(\d{4})(\d{4})/, '$1 $2-$3') : '+54 9 11 6796-7633';
   const messages = {
     consulta: `Hola, soy ____. Me comunico desde la página de ${identity}. Quiero hacer una consulta de gasista.`,
@@ -41,7 +42,7 @@
     const phone = document.getElementById('contactPhone').value.trim();
     const message = document.getElementById('contactMessage').value.trim();
     const text = `Hola, soy ${name}. Mi teléfono es ${phone}. Me comunico desde la página de ${identity}.\n\n${message || 'Quiero hacer una consulta de gasista.'}`;
-    window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+    window.open(`https://wa.me/${whatsappPhone}?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   });
   document.getElementById('currentYear').textContent = new Date().getFullYear();
 })();
